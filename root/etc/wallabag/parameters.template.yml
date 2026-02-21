@@ -54,3 +54,17 @@ parameters:
 
     # User-friendly name of your instance for 2FA issuer
     server_name: ${SYMFONY__ENV__SERVER_NAME:-"Your wallabag instance"}
+
+    # LDAP
+    ldap_enabled: ${SYMFONY__ENV__LDAP_ENABLED:-false}
+    ldap_host: ${SYMFONY__ENV__LDAP_HOST:-localhost}
+    ldap_port: ${SYMFONY__ENV__LDAP_PORT:-389}
+    ldap_tls: false
+    ldap_ssl: false
+    ldap_base: ${SYMFONY__ENV__LDAP_BASE_DN:-dc=example,dc=com}
+    ldap_dn_string: ${SYMFONY__ENV__LDAP_BASE_DN:-dc=example,dc=com}
+    ldap_manager_dn: ${SYMFONY__ENV__LDAP_USERNAME:-~}
+    ldap_manager_pw: ${SYMFONY__ENV__LDAP_PASSWORD:-~}
+    ldap_filter: ${SYMFONY__ENV__LDAP_SEARCH_FILTER:-'(&({uid_key}={username})(ObjectClass=Person))'}
+    ldap_username_attribute: ${SYMFONY__ENV__LDAP_USERNAME_ATTRIBUTE:-uid}
+    ldap_email_attribute: ${SYMFONY__ENV__LDAP_EMAIL_ATTRIBUTE:-mail}

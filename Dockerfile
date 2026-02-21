@@ -1,4 +1,6 @@
 ARG COMPOSER_VERSION=2.2
+ARG WALLABAG_REPO=greenjava/wallabag
+ARG WALLABAG_VERSION=2.6.14
 
 FROM composer:$COMPOSER_VERSION AS composer
 
@@ -12,8 +14,6 @@ RUN go install -ldflags "-s -w" -v github.com/a8m/envsubst/cmd/envsubst@v1.4.3
 FROM alpine:3.22
 
 COPY --from=builder /go/bin/envsubst /usr/bin/envsubst
-
-ARG WALLABAG_VERSION=2.6.14
 
 RUN set -ex \
  && apk add --no-cache \
@@ -50,6 +50,7 @@ RUN set -ex \
       php84-tidy \
       php84-intl \
       php84-sodium \
+      php84-ldap \
       mariadb-client \
       postgresql17-client \
       rabbitmq-c \
@@ -66,8 +67,11 @@ COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
 COPY root /
 
+ARG WALLABAG_REPO
+ARG WALLABAG_VERSION
+
 RUN set -ex \
- && curl -L -o /tmp/wallabag.tar.gz https://github.com/wallabag/wallabag/releases/download/$WALLABAG_VERSION/wallabag-$WALLABAG_VERSION.tar.gz \
+ && curl -L -o /tmp/wallabag.tar.gz https://github.com/${WALLABAG_REPO}/releases/download/${WALLABAG_VERSION}/wallabag-${WALLABAG_VERSION}.tar.gz \
  && tar xvf /tmp/wallabag.tar.gz -C /tmp \
  && mkdir /var/www/wallabag \
  && mv /tmp/wallabag-*/* /var/www/wallabag/ \
