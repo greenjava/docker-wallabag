@@ -71,8 +71,9 @@ ARG WALLABAG_REPO
 ARG WALLABAG_VERSION
 
 RUN set -ex \
- && curl -L -o /tmp/wallabag.tar.gz https://github.com/${WALLABAG_REPO}/releases/download/${WALLABAG_VERSION}/wallabag-${WALLABAG_VERSION}.tar.gz \
- && tar xvf /tmp/wallabag.tar.gz -C /tmp \
+ && curl -fL -o /tmp/wallabag.tar.gz https://github.com/${WALLABAG_REPO}/releases/download/${WALLABAG_VERSION}/wallabag-${WALLABAG_VERSION}.tar.gz \
+ && tar xzf /tmp/wallabag.tar.gz -C /tmp \
+ && ls /tmp \
  && mkdir /var/www/wallabag \
  && mv /tmp/wallabag-*/* /var/www/wallabag/ \
  && rm -rf /tmp/wallabag* \
