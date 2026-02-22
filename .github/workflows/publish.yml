@@ -18,6 +18,30 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v6
 
+      - name: Resolve wallabag version
+        id: vars
+        run: |
+          if [ -n "${{ github.event.client_payload.version }}" ]; then
+            echo "wallabag_version=${{ github.event.client_payload.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "wallabag_version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for wallabag release asset to be available
+        run: |
+          VERSION="${{ steps.vars.outputs.wallabag_version }}"
+          URL="https://github.com/greenjava/wallabag/releases/download/${VERSION}/wallabag-${VERSION}.tar.gz"
+          echo "Waiting for $URL ..."
+          for i in $(seq 1 12); do
+            if curl --silent --fail --head "$URL" > /dev/null; then
+              echo "Asset available."
+              exit 0
+            fi
+            echo "Attempt $i/12 failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "Timed out waiting for release asset." && exit 1
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -49,7 +73,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            WALLABAG_VERSION=${{ github.event.client_payload.version || github.ref_name }}
+            WALLABAG_VERSION=${{ steps.vars.outputs.wallabag_version }}
+            WALLABAG_REPO=greenjava/wallabag
           # Support for different platforms, see here:
           # https://github.com/docker/buildx/blob/master/docs/reference/buildx_build.md#-set-the-target-platforms-for-the-build---platform
           platforms: linux/amd64,linux/arm64,linux/arm/v7
